@@ -9,7 +9,7 @@ mysql_query("SET NAMES 'UTF8'");
 
 //Создаем и инициализируем экземпляр класса для работы с файлами
 $album = new Album;
-$album->init($param);
+$album->init($_POST);
 
 /**
 * Класс для работы с файлами
