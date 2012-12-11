@@ -411,6 +411,7 @@
                             set.onAllComplete.call(self);
                         }
                     };
+                    delete queue[queueId]; // Очистка очереди
                     self._damnUploaderUploadItem(set.url, item);
                 });
                 break;
