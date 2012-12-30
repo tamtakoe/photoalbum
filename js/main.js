@@ -1,17 +1,13 @@
 $(document).ready(function() {
-	$("#album textarea").autoGrow({
-			editor: false,
-			toggle: true
-		});
-	$("#album").sortable({
-            placeholder: "span2 ui-state-highlight",
-			update: function(){saveSort()}
-        });
-	$("#album").disableSelection();
+
+    $('#album').sortable({
+        placeholder: 'span2 ui-state-highlight',
+        update: function(){saveSort()}
+    }).on('click', 'textarea', function (e) { //for stupid Firefox and Opera
+        e.target.focus();          
+    });
 	
-	$(".fancybox").attr('rel', 'gallery').fancybox();
-
-
+    $(".fancybox").attr('rel', 'gallery').fancybox();
 
     // Консоль
     var $console = $("#console");
@@ -49,22 +45,22 @@ $(document).ready(function() {
     ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
     ctx.fillRect (30, 30, 55, 50);
 
-
+	var actionUrl = 'action.php'
+	
     ////////////////////////////////////////////////////////////////////////////
     // Подключаем и настраиваем плагин загрузки
 
-    fileInput.damnUploader({
+   fileInput.damnUploader({
         // куда отправлять
-        //url: '../modules/xslider/serverLogic.php',
-		url: 'action.php?type=add',
+		url: actionUrl,
+		// добавочные данные, которые будут доступны в $_POST.
+		data: {type:'update'},
         // имитация имени поля с файлом (будет ключом в $_FILES, если используется PHP)
         fieldName:  'my-pic',
         // дополнительно: элемент, на который можно перетащить файлы (либо объект jQuery, либо селектор)
         dropBox: dropBox,
         // максимальное кол-во выбранных файлов (если не указано - без ограничений)
         limit: 5,
-		// добавочные данные, которые будут доступны в $_POST. Объект JS будет преобразован в JSON-строку
-		data: {type:'avatar',title1:{a:'ads', b:'dsdf'}},
         // когда максимальное кол-во достигнуто (вызывается при каждой попытке добавить еще файлы)
         onLimitExceeded: function() {
             log('Допустимое кол-во файлов уже выбрано');
@@ -83,9 +79,7 @@ $(document).ready(function() {
             updateInfo();
         }
     });
-
-
-
+    
     ////////////////////////////////////////////////////////////////////////////
     // Вспомогательные функции
 
@@ -124,6 +118,36 @@ $(document).ready(function() {
         return bb.getBlob(mimeString);
     }
 
+    // Добавляем новый элемент
+    function add(action) {
+        $.ajax({
+            'url': actionUrl,
+            'type': 'post',
+            'dataType': 'json',
+            'data': {'type': 'add'},
+            'success': function(data) {
+                //Обновляем информацию с сервера
+                action(data.id)
+            },
+            'error': function() {
+                log('невозможно создать запись');
+            }
+        })
+    }
+
+    // Обновляем данные
+    function update() {
+        $.ajax({
+            'url': 'action.php',
+            'type': 'post',
+            'dataType': 'json',
+            'data': {'title': $textarea.val(), 'type': 'update', 'id': $(e.target).parent().parent().parent().data('id')},
+            'success': function(data) {
+                $(e.target).parent().parent().find('.img-link').attr('title',$textarea.val())
+            }
+        })
+    }
+    
 	// Запоминаем порядок расположения превьюшек
 	function saveSort() {
 		var sort = []
@@ -131,33 +155,56 @@ $(document).ready(function() {
 			sort.push($(this).data('id'))
 		})
 		$.ajax({
-			'url': 'action.php?type=sort',
+			'url': actionUrl,
 			'type': 'post',
-			'data': {'sort' : JSON.stringify(sort)}
+			'data': {type: 'sort', 'sort': JSON.stringify(sort)}
 		})
 	}
 	
 	// Добавление превьюшки
 	function addItem(options) {	
-		var $item = $(template).appendTo(imgList)
-		editItem($item, options)
+		
+		var $item = editItem($(template), options)
+        $item.appendTo(imgList).find('textarea').autoGS({
+                'editor': false,
+                'toggle': function(e, value) {
+                    $.ajax({
+                        'url': 'action.php',
+                        'type': 'post',
+                        'dataType': 'json',
+                        'data': {'title': value, 'type': 'update', 'id': $(e.target).parent().parent().parent().data('id')},
+                        'success': function(data) {
+                            $(e.target).parent().parent().find('.img-link').attr('title',value);
+                        }
+                    })
+                }
+            });
 		return $item
 	}
 	
-	// Изменение свойств превьюшки
+	/** Изменение свойств превьюшки
+    *
+    * @item jQuery-object
+    * @title string
+    * @note string
+    * @imgLink string
+    * @img string
+    * @id number
+    * @qId string
+    * @file string
+    * @closeBt string
+    * @progress boolean or number
+    * @return jQuery-object
+    */
 	function editItem($item, options) {
 		var $imgLink = $item.find('.img-link'),
 			$img = $imgLink.find('img')
-			
-		if (typeof options.title   === 'string') {
-			$title = $item.find('textarea')
+
+		if (typeof options.title === 'string') {
+			var $title = $item.find('textarea')
 			$title.val(options.title)
 			$imgLink.attr('title', options.title)
 			$img.attr('alt', options.title)
-			$title.autoGrow({
-				editor: false,
-				toggle: true
-			});
 		}
 		if (typeof options.note    === 'string') {
 			$item.find('textarea1').val(options.note)
@@ -178,19 +225,19 @@ $(document).ready(function() {
 					if (typeof $item.data('id') !== 'undefined') {
 						//Удаляем с сервера
 						$.ajax({
-							'url': 'action.php?type=delete&id='+$item.data('id'),
+							'url': actionUrl,
 							'type': 'post',
 							'dataType': 'json',
-							'data': {a:'asda'},
+							'data': {type: 'delete', id: $item.data('id')},
 							'success': function(data) {
 								$item.remove();
+                                saveSort();
 								log('удален с сервера');
 							},
 							'error': function() {
 								log('невозможно удалить с сервера');
 							}
 						})
-						saveSort()
 					} else if (typeof $item.data('qId') !== 'undefined') {
 						var file = $item.data('file')
 						imgCount--;
@@ -205,7 +252,7 @@ $(document).ready(function() {
 				})
 				
 			} else {
-				$closeBt.hide()
+				$closeBt.hide();
 			}
 		}
 		
@@ -217,16 +264,18 @@ $(document).ready(function() {
 			$(templateProgress).appendTo($item.find('> div'));	
 			
 		} else if (options.progress === false) {
-			$item.find('div.progress').remove()
+			$item.find('div.progress').remove();
 		}
+        
+        return $item;
 	}
 	
 	// Загружаем список элементов с сервера
 	$.ajax({
-		'url': 'action.php?type=getlist',
+		'url': actionUrl,
 		'type': 'post',
 		'dataType': 'json',
-		'data': {a:'asda'},
+		'data': {type: 'getlist'},
 		'success': function(data) {
 			if (typeof data !== 'undefined') {
 				$.each(data, function(i, item) {
@@ -251,7 +300,6 @@ $(document).ready(function() {
 
         // Создаем элемент li и помещаем в него название, миниатюру и progress bar
 		$item = addItem({
-			//title: file.name+' ',
 			closeBt: true
 		})
 
@@ -261,7 +309,8 @@ $(document).ready(function() {
 
             // Отсеиваем не картинки
             var imageType = /image.*/;
-            if (!file.type.match(imageType)) {
+			var textType = /text.*/;
+            if (!file.type.match(imageType) && !file.type.match(textType)) {
                 log('Файл отсеян: `'+file.name+'` (тип '+file.type+')');
                 return true;
             }
@@ -303,7 +352,7 @@ $(document).ready(function() {
 				})
             },
             onComplete: function(successfully, data, errorCode) {
-                if(successfully) {
+                if (successfully) {
                     log('Файл `'+this.file.name+'` загружен, полученные данные:<br/>*****<br/>'+data+'<br/>*****');
 					//Обновляем информацию с сервера
 					data = $.parseJSON(data)
@@ -317,7 +366,7 @@ $(document).ready(function() {
 					saveSort()
 
                 } else {
-                    if(!this.cancelled) {
+                    if (!this.cancelled) {
                         log('<span style="color: red;">Файл `'+this.file.name+'`: ошибка при загрузке. Код: '+errorCode+'</span>');
                     }
                 }
@@ -327,15 +376,21 @@ $(document).ready(function() {
         // ... и помещаем его в очередь
         var queueId = fileInput.damnUploader('addItem', uploadItem);
 		
-		// и сразу же загружаем на сервер
-		/*var data = {'title': ''} //Если хотим сразу передать какие-то данные
-		fileInput.damnUploader('setParam', {'data': data});*/
-		fileInput.damnUploader('startUpload');
-		
+		// Записываем ID очереди
 		editItem($item, {
-					qId: queueId,
-					file: file
-			})
+			qId: queueId,
+			file: file
+		})	
+		
+        add(function(id) {
+            editItem($item, {
+                'id': id
+            })
+            log('запись создана');
+
+            fileInput.damnUploader('setParam', {'data':{'type':'update', 'id': id, 'file':true}});          
+            fileInput.damnUploader('startUpload');
+        })
 
         return uploadItem;
     }
