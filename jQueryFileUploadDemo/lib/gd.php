@@ -20,18 +20,18 @@ abstract class Image {
 	* @param boolean Будет ли наложен копирайт. Изображение берется из файла copyright.png
 	* @return string Имя конечного файла или false в случае ошибки
 	*/
-	public function trueresize($file_input, $file_output, $max_w, $max_h, $ext, $quality, $copyright) {
+	public function trueresize($file_input, $file_output = false, $max_w = null, $max_h = null, $ext = null, $quality = null, $copyright = false) {
 
 		list($w, $h, $type) = getimagesize($file_input);
 		if (!$w || !$h) return false; //Невозможно получить длину и ширину изображения
 
 		//Вычисляем новые размеры изображения, если оно не вписывается
 		$h1 = $h;
-		if ($max_w && $w > $max_w) {
+		if ($max_w && is_numeric($max_w) && $w > $max_w) {
 			$new_w = $max_w;
 			$new_h = $h1 = $new_w/($w/$h);
 		}	
-		if ($max_h && $h1 > $max_h) {
+		if ($max_h && is_numeric($max_h) && $h1 > $max_h) {
 			$new_h = $max_h;
 			$new_w = $new_h/($h/$w);
 		}
@@ -79,17 +79,17 @@ abstract class Image {
 	* Обрезает до квадрата и масштабирует до нужного размера. Если область обрезки не задана, ей выступает все изображение.
 	*
 	* @param string Расположение исходного файла
-	* @param string Расположение конечного файла
+	* @param string Расположение конечного файла, если установлено false, то исходный файл перезаписывается новым
 	* @param integer Размер стороны миниатюры в px
 	* @param string Тип конечного файла jpeg, png или gif. При null тип определяется из имени конечного файла. В противном случае из типа исходного
 	* @param integer Качество конечного файла 1–100. Иначе используются рекомендуемые значения 75 для JPEG и 100 для PNG (при 100 PNG-файлы весят меньше, но возрастает нагрузка на сервер)
 	* @param integer Ширина области обрезки в %/100
 	* @param integer Высота области обрезки в %/100
-	* @param integer X-координата левого верхнего угла области обрезки в %/100. При null область обрезки расположится по-центру
-	* @param integer Y-координата левого верхнего угла области обрезки в %/100. При null область обрезки расположится по-центру
+	* @param integer X-координата левого верхнего угла области обрезки в %*0,01. При null область обрезки расположится по-центру
+	* @param integer Y-координата левого верхнего угла области обрезки в %*0,01. При null область обрезки расположится по-центру
 	* @return string Имя конечного файла или false в случае ошибки
 	*/
-	public function makeavatar($file_input, $file_output, $new_size = 100, $ext, $quality, $w_pct = 1, $h_pct = 1, $x_pct, $y_pct) {
+	public function makeavatar($file_input, $file_output = false, $new_size = 100, $ext = null, $quality = null, $w_pct = 1, $h_pct = 1, $x_pct = null, $y_pct = null) {
 	
 		//Читаем данные из исходного изображения
 		list($w, $h, $type) = getimagesize($file_input);
@@ -143,13 +143,13 @@ abstract class Image {
 	* convert( null,            'thumb/astra.png', $image)           //Сохранит $image под именем 'thumb/astra.png'
 	*
 	* @param string Имя исходного изображения
-	* @param string Имя конечного изображения
+	* @param string Имя конечного изображения, если установлено false, то исходный файл перезаписывается новым
 	* @param object Источник конечного изображения
 	* @param string Тип конечного файла jpeg, png или gif. При null тип определяется из имени конечного файла. В противном случае из типа исходного
 	* @param integer Качество конечного файла. 1–100 для JPEG (рекомендуется 75), 0—9 для PNG (рекомендуется 9, если сервер выдержит дополнительную нагрузку)
 	* @return string Имя конечного файла или false в случае ошибки
 	*/
-	public function convert($file_input, $file_output, $image, $ext, $quality) {
+	public function convert($file_input, $file_output = false, $image, $ext = null, $quality = null) {
 
 		//Определяем тип конечного файла.
 		//Если тип файла не указан, он будет взят из имени конечного файла, если же его нет, то из типа исходного
@@ -199,7 +199,7 @@ abstract class Image {
 			case 'jpeg':
 			case 'jpg':
 				$ext = 'jpeg';
-				if ($quality < 1 || $quality > 100) $quality = 75;
+				if (!is_numeric($quality) || $quality < 1 || $quality > 100) $quality = 75;
 				if (!imagejpeg($image, $path.$name.$ext, $quality)) return false; //Не удалось сохранить в jpeg
 				break;
 				
@@ -209,7 +209,7 @@ abstract class Image {
 				
 			default:
 				$ext = 'png';
-				if ($quality < 1 || $quality > 100) $quality = 9;
+				if (!is_numeric($quality) || $quality < 1 || $quality > 100) $quality = 9;
 				$quality = round($quality / 11.111111);
 				if (!imagepng($image, $path.$name.$ext, $quality)) return false; //Не удалось сохранить в png
 		}

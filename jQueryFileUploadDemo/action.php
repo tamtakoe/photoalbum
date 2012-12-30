@@ -7,7 +7,7 @@ mysql_query("SET NAMES 'UTF8'");
 //Создаем и инициализируем экземпляр класса для работы с файлами
 try {
     new Album($_REQUEST, array(
-        'maxSize' => '2M',
+        'maxSize' => '4M',
         'allowedType' => array('jpeg', 'jpg', 'png', 'gif',
         'bmp', 'psd', 'psp', 'ai', 'eps', 'cdr',
         'mp3', 'mp4', 'wav', 'aac', 'aiff', 'midi',
@@ -85,14 +85,15 @@ class Album {
         if (isset($id)) {
             $res = mysql_query("select `file`, `preview` from `photoalbum` where `id` = '" . intval($id) . "'");
             $row = mysql_fetch_assoc($res);
-
+            
+            if ($row['file']) {
+                unlink($this->prm['uploadDir'] . $row['file']);        
+                //Удаляем только миниатюры, созданные из картинок
+                if (pathinfo($row['preview'], PATHINFO_FILENAME) !== pathinfo($row['file'], PATHINFO_EXTENSION)) {
+                    unlink($this->prm['previewsDir'] . $row['preview']);
+                }
+            }            
             mysql_query("delete from `photoalbum` where `id` = '" . intval($id) . "'");
-
-            unlink($this->prm['uploadDir'] . $row['file']);           
-            //Удаляем только миниатюры, созданные из картинок
-            if (pathinfo($row['preview'], PATHINFO_FILENAME) !== pathinfo($row['file'], PATHINFO_EXTENSION)) {
-                unlink($this->prm['previewsDir'] . $row['preview']);
-            }
         }
 	}
 
@@ -116,8 +117,9 @@ class Album {
                     //Подключаем графическую библиотеку и обрабатываем изображение
                     include_once('lib/gd.php'); //или lib/magickwand.php, если она есть на хостинге и работает лучше.
                     
-                    $preview_name = Image::makeavatar($this->prm['uploadDir'] . $file_name, $this->prm['previewsDir'] . $file_name, 164, 'png');
+                    $preview_name = Image::makeavatar($this->prm['uploadDir'] . $file_name, $this->prm['previewsDir'] . $file_name, 160, 'png');
                     $file_name = Image::trueresize($this->prm['uploadDir'] . $file_name, null, 1000, 1000, 'jpg', 75, true);
+                    if (!$preview_name || !$file_name) throw new Exception('Не удалось обработать изображение', 16);
                 } else {
                     $preview_name = $ext . '.png';
                 }

@@ -109,12 +109,14 @@ $(document).ready(function() {
                     };
                     // Начинаем загрузку
                     this.jqXHRitem = this.submit();
-                    
                 } else {
                     Album.showErrors(errors)
                     Album.del(this.$item)
                 }
-            })     
+            }).fail(function () {
+                Album.showErrors(['Невозможно загрузить файлы, проверьте соединение с интернетом'])
+                Album.del(this.$item)
+            })   
         },
         done: function (e, data) {
             if (typeof data.result.error === 'undefined') {
@@ -201,10 +203,7 @@ AlbumObj.prototype = {
             'type': 'post',
             'dataType': 'json',
             'data': {'type': 'add'},
-            'context': data,
-            'error': function () {
-                    a.showErrors(['Невозможно загрузить файлы, проверьте соединение с интернетом'])
-                }
+            'context': data
         })
     },
 
@@ -228,26 +227,33 @@ AlbumObj.prototype = {
     // Удаление с сервера
     del: function ($item) {
         var a = this
-        var id = $item.data('id')
-        $item.hide()
-        $.ajax({
-            'url': a.actionUrl,
-            'type': 'post',
-            'dataType': 'json',
-            'data': {'type': 'delete', 'id': id},
-            'success': function (data) {
-                $item.remove();
-                a.saveSort();
-            },
-            'error': function () {
-                a.showErrors(['Невозможно удалить с сервера, проверьте соединение с интернетом'])
-                $item.show()               
-                a.editItem($item, {
-                    'id': id //Восстанавливаем id
-                })
-            }
-        })
-        $item.data('id','') //Удаляем id, чтобы отметить начало процесса удаления
+        
+        if ($item.data('id')) {
+            var id = $item.data('id')
+            
+            $item.hide()
+            $.ajax({
+                'url': a.actionUrl,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {'type': 'delete', 'id': id},
+                'success': function (data) {
+                    $item.remove();
+                    a.saveSort();
+                },
+                'error': function () {
+                    a.showErrors(['Невозможно удалить с сервера, проверьте соединение с интернетом'])
+                    $item.show()               
+                    a.editItem($item, {
+                        'id': id //Восстанавливаем id
+                    })
+                }
+            })
+            $item.data('id','') //Удаляем id, чтобы отметить начало процесса удаления
+            
+        } else {
+            $item.remove()
+        }
     },
     
     // Чтение списка элементов с сервера
