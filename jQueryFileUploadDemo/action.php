@@ -12,7 +12,7 @@ try {
         'bmp', 'psd', 'psp', 'ai', 'eps', 'cdr',
         'mp3', 'mp4', 'wav', 'aac', 'aiff', 'midi',
         'avi', 'mov', 'mpg', 'flv', 'mpa',
-        'pdf', 'txt', 'rtf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+        'pdf', 'txt', 'rtf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'djvu', 'djv',
         'bat', 'cmd', 'dll', 'inf', 'ini', 'ocx', 'sys',
         'htm', 'html', 'write', 'none',
         'zip', 'rar', 'dmg', 'sitx')

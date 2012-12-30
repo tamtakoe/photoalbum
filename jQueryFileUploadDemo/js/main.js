@@ -64,7 +64,7 @@ $(document).ready(function() {
                 'prepend': true, //Элемент будет добавлен в начало списка
                 'closeBt': function ($obj) {
                     if (typeof data.jqXHRitem !== 'undefined') data.jqXHRitem.abort();
-                    del($obj)
+                    Album.del($obj)
                 }
             })
             data.$item = $item
@@ -123,7 +123,7 @@ $(document).ready(function() {
                     'imgLink': data.result.fileName,
                     'img': data.result.previewName,
                     'progress': false,
-                    'closeBt': function($obj) {del($obj)}
+                    'closeBt': function($obj) { Album.del($obj) }
                 })
             } else {
                 Album.showErrors([data.result.error])
