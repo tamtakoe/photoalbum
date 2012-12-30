@@ -1,29 +1,29 @@
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>Демонстрация плагина загрузки файлов на сервер</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="description" content="">
-		<meta name="author" content="">
-		<link href="css/bootstrap.css" rel="stylesheet">
+    <head>
+        <meta charset="utf-8">
+        <title>Демонстрация плагина загрузки файлов на сервер</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link href="css/bootstrap.css" rel="stylesheet">
         <link href="css/bootstrap-responsive.css" rel="stylesheet">	
-		<link href="css/main.css" rel="stylesheet">
-		<link href="css/jquery.fancybox.css" rel="stylesheet"/>
+        <link href="css/main.css" rel="stylesheet">
+        <link href="css/jquery.fancybox.css" rel="stylesheet"/>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-		<script src="js/jquery-ui-1.8.24.custom.min.js"></script>
-		<script src="js/jquery.mousewheel-3.0.6.pack.js"></script>
+        <script src="js/jquery-ui-1.8.24.custom.min.js"></script>
+        <script src="js/jquery.mousewheel-3.0.6.pack.js"></script>
         <script src="js/bootstrap.min.js"></script>
         <script src="js/jquery.autoGrowAndSaveArea.js"></script>		
-		<script src="js/jquery.fancybox.js"></script>
+        <script src="js/jquery.fancybox.js"></script>
         <script src="js/jquery.ui.widget.js"></script>
         <script src="js/jquery.iframe-transport.js"></script>
         <script src="js/jquery.fileupload.js"></script>
-		<script src="js/main.js"></script>
-		<!--[if lt IE 9]>
-		  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-		<link rel="shortcut icon" href="/ico/favicon.ico">	
-	</head>
+        <script src="js/main.js"></script>
+        <!--[if lt IE 9]>
+          <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <link rel="shortcut icon" href="/ico/favicon.ico">	
+    </head>
 	<body>
 		<div class="container">
 			<br/>
