@@ -1,7 +1,7 @@
 <?php
 //Подключаемся к БД
-$link = mysql_connect("a50859.mysql.mchost.ru", "a50859_6", "aabbcc");
-mysql_select_db("a50859_6");
+$link = mysql_connect("хост", "логин", "пароль");
+mysql_select_db("база");
 mysql_query("SET NAMES 'UTF8'");
 
 //Создаем и инициализируем экземпляр класса для работы с файлами
