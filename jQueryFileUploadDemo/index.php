@@ -8,7 +8,7 @@
 		<link href="css/bootstrap.css" rel="stylesheet">
         <link href="css/bootstrap-responsive.css" rel="stylesheet">	
 		<link href="css/main.css" rel="stylesheet">
-		<link href="css/jquery.fancybox.css" type="text/css" media="screen" />
+		<link href="css/jquery.fancybox.css" rel="stylesheet"/>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 		<script src="js/jquery-ui-1.8.24.custom.min.js"></script>
 		<script src="js/jquery.mousewheel-3.0.6.pack.js"></script>
