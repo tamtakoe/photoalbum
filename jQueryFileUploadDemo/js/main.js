@@ -9,7 +9,7 @@ $(document).ready(function() {
     // Сортировка миниатюр
 	$thumbnailArea.sortable({
         'placeholder': 'span2 ui-state-highlight',
-        'update': function () { saveSort() }
+        'update': function () { Album.saveSort() }
     }).on('click', 'textarea', function (e) { //for stupid Firefox and Opera
         e.target.focus();          
     });
